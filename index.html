@@ -24,11 +24,11 @@
 
     #serialResults {
         font-family: monospace;
-        white-space: pre;
+        white-space: normal;
         height: calc(100% - 120px);
         width: calc(100% - 20px);
         border-style: solid;
-        overflow: scroll;
+        /* overflow-wrap: break-word; */
         background-color: rgb(88, 92, 92);
         padding: 10px;
         margin: 0px;
@@ -61,6 +61,13 @@ Baud:
     <option value="256000">256000</option>
 </datalist>
 <button onclick="serialResultsDiv.innerHTML = '';">Clear</button>
+Display:
+<input type="text" id="display" list="displayList" style="width: 10ch;" onclick="this.value = ''"
+    onchange="localStorage.display = this.value">
+<datalist id="displayList">
+    <option value="raw">Raw</option>
+    <option value="bytes">Bytes</option>
+</datalist>
 
 <br>
 <input type="text" id="lineToSend" style="width:calc(100% - 165px)">
@@ -83,7 +90,7 @@ Baud:
 
 
 <br>
-<div id="serialResults">
+<div id="serialResults" contenteditable="">
 </div>
 <script>
     var port, textEncoder, writableStreamClosed, writer, historyIndex = -1;
@@ -143,6 +150,14 @@ Baud:
     }
     const serialResultsDiv = document.getElementById("serialResults");
     async function appendToTerminal(newStuff) {
+        if (localStorage.display == "bytes") {
+            let newStuffBytes = "";
+            // debugger;
+            for (var i in newStuff) {
+                newStuffBytes += "\\x" + ("0" + newStuff.charCodeAt(i).toString(16)).slice(-2) + " ";
+            }
+            newStuff = newStuffBytes;
+        }
         serialResultsDiv.innerHTML += newStuff;
         if (serialResultsDiv.innerHTML.length > 3000) serialResultsDiv.innerHTML = serialResultsDiv.innerHTML.slice(serialResultsDiv.innerHTML.length - 3000);
 
@@ -168,9 +183,12 @@ Baud:
         }
     })
     document.getElementById("baud").value = (localStorage.baud == undefined ? 9600 : localStorage.baud);
+    document.getElementById("display").value = (localStorage.display == undefined ? raw : localStorage.display);
     document.getElementById("addLine").checked = (localStorage.addLine == "false" ? false : true);
     document.getElementById("carriageReturn").checked = (localStorage.carriageReturn == "false" ? false : true);
     document.getElementById("echoOn").checked = (localStorage.echoOn == "false" ? false : true);
 </script>
 <br> © 2021 Autodrop3d Source <a
-    href="https://github.com/autodrop3d/serialTerminal.com">https://github.com/autodrop3d/serialTerminal.com</a>
+    href="https://github.com/autodrop3d/serialTerminal.com">https://github.com/autodrop3d/serialTerminal.com</a>,
+Modified by Chris Courson, Source: <a
+href="https://github.com/ccourson/serialTerminal.com">https://github.com/ccourson/serialTerminal.com</a>
